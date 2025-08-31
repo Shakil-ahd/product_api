@@ -42,7 +42,7 @@ class _CartPageState extends State<CartPage> {
                   title: Text(product.title),
                   subtitle: Text("\$${product.price}"),
                   trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete, color: Colors.grey),
                     onPressed: () => removeItem(index),
                   ),
                 );
