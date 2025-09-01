@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:product_api/screens/Registration/registration_screen.dart';
-import 'package:product_api/screens/Navbar/navbar_screen.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../Registration/registration_screen.dart';
+import '../Navbar/navbar_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,12 +13,42 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final Box userBox = Hive.box('users');
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  void loginUser() {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("All fields are required")));
+      return;
+    }
+
+    if (userBox.containsKey(email)) {
+      final user = userBox.get(email);
+      if (user['password'] == password) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Login Successful")));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const BottomnavScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Wrong Password")));
+      }
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("User not found")));
+    }
   }
 
   @override
@@ -71,14 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const BottomnavScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: loginUser,
                     child: const Text(
                       "Login",
                       style: TextStyle(color: Colors.white, fontSize: 18),
@@ -95,8 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const RegistrationPage(),
-                          ),
+                              builder: (context) => const RegistrationPage()),
                         );
                       },
                       child: const Text(

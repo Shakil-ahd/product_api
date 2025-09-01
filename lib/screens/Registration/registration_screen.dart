@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:product_api/screens/Login/loginscreen.dart';
-import 'package:product_api/screens/Navbar/navbar_screen.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../Login/loginscreen.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -11,10 +11,36 @@ class RegistrationPage extends StatefulWidget {
 
 class _RegistrationPageState extends State<RegistrationPage> {
   final TextEditingController nameController = TextEditingController();
-
   final TextEditingController emailController = TextEditingController();
-
   final TextEditingController passwordController = TextEditingController();
+  final Box userBox = Hive.box('users');
+
+  void registerUser() {
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("All fields are required")));
+      return;
+    }
+
+    if (userBox.containsKey(email)) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("User already exists")));
+      return;
+    }
+
+    userBox.put(email, {'name': name, 'password': password});
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text("Registration Successful")));
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,14 +109,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const BottomnavScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: registerUser,
                     child: const Text(
                       "Register",
                       style: TextStyle(color: Colors.white, fontSize: 18),
@@ -106,9 +125,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       onTap: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
+                          MaterialPageRoute(builder: (context) => const LoginScreen()),
                         );
                       },
                       child: const Text(
