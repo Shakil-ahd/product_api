@@ -69,6 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: TextField(
+                    autofocus: true,
                     controller: emailController,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
